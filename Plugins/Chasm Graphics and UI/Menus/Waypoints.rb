@@ -319,6 +319,17 @@ def accessWaypoint(waypointName,avatarSpecies=nil)
 	if avatarSpecies
 		alternate = true
 
+		# Multiple possible avatars: let the player pick which one to attune to.
+		# "I'm thinking..." is the first option and the cancel target, so choosing
+		# it (or backing out) aborts without summoning anything.
+		if avatarSpecies.is_a?(Array)
+			commands = [_INTL("I'm thinking...")]
+			avatarSpecies.each { |sp| commands.push(GameData::Species.get(sp).name) }
+			choice = pbMessage(_INTL("Several presences stir here. Which do you attune to?"), commands, 1)
+			return false if choice <= 0
+			avatarSpecies = avatarSpecies[choice - 1]
+		end
+
 		speciesName = GameData::Species.get(avatarSpecies).name
 		if pbHasItem?(LEGEND_SUMMONING_KEY_ITEM) || pbHasItem?(LEGEND_SUMMONING_CONSUMABLE_ITEM)
 			pbMessage(_INTL("The totem pulses with the frequency of {1}.",speciesName))
